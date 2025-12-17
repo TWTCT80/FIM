@@ -51,9 +51,32 @@ def load_baseline(baseline_save_file: Path) -> dict:
     #print(json_file)        #test-utskrift
     return json_file
 
+def integrity_check(root: Path, baseline_save_file: Path) -> None:          # Funktion som kontrollerar root (mappen du vill kontrollera) mot baseline_save_file (json-filen)
+    base = load_baseline(baseline_save_file)                                # Läser json-filen och sparar som en dict (base)
+    old = base["files"]                                                     # plocka ut filerna ur dicten, se nedan: 
+    new = skapa_snapshot(root)                                              #"root": "/home/tom/Documents",
+                                                                            #"files": {
+                                                                            #  "text1.txt": "hash1",
+                                                                            #  "text2.txt": "hash2"
+
+    old_set = set(old.keys())       #Skapar sets för att göra jämförelsen enkel
+    new_set = set(new.keys())
+
+    added = sorted(new_set - old_set)
+    removed = sorted(old_set - new_set)
+    
+    changed = []
+    for f in (old_set & new_set):       # jämför de gamla och nya setsen
+        if old[f] != new[f]:
+            changed.append(f)
+    changed = sorted(changed)
+
+
+
+
 
 
 if __name__ == "__main__":
     #print(skapa_snapshot(Path("/home/kali/temp/"))) #Test
-    spara_baseline(Path("/home/kali/temp/"), Path("/home/kali/Desktop/test.json"))
-    load_baseline(Path("/home/kali/Desktop/test.json"))
+    print(integrity_check(Path("/home/kali/temp/"), Path("/home/kali/Desktop/test.json")))
+    #load_baseline(Path("/home/kali/Desktop/test.json"))
